@@ -91,7 +91,7 @@ namespace PayflexTimeCardConverter
             
             string[] lines = File.ReadAllLines(SourceFile);
 
-            pb_Status.Maximum = lines.Length - 500;
+            pb_Status.Maximum = lines.Length;
             pb_Status.Step = 1;
             
             foreach (string line in lines)
@@ -108,7 +108,6 @@ namespace PayflexTimeCardConverter
 
                 dt.Rows.Add(dr);
 
-                //if(pb_Status.Value%2==0) 
                 Thread.Sleep(1); 
              
             }
