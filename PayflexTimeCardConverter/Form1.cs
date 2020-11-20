@@ -88,7 +88,8 @@ namespace PayflexTimeCardConverter
             dt.Columns.Add("OtherCode", typeof(String));
 
             lbl_Status.Text = "Importing TimeCard File";
-            
+            Application.DoEvents();
+
             string[] lines = File.ReadAllLines(SourceFile);
 
             pb_Status.Maximum = lines.Length;
@@ -108,8 +109,9 @@ namespace PayflexTimeCardConverter
 
                 dt.Rows.Add(dr);
 
-                Thread.Sleep(1); 
-             
+                Application.DoEvents();
+
+
             }
             pb_Status.Value = pb_Status.Maximum;
             Thread.Sleep(1);
@@ -122,7 +124,8 @@ namespace PayflexTimeCardConverter
             command.ExecuteNonQuery();
 
             lbl_Status.Text = "Write File to Database";
-            
+            Application.DoEvents();
+
             using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(sqlconnection))
             {
                 sqlBulkCopy.DestinationTableName = dt.TableName;
@@ -138,7 +141,8 @@ namespace PayflexTimeCardConverter
             Query = "SELECT [CompanyID], [HeaderID], [OUTPUTDATA] FROM vw_TimecardMap"; //"ORDER BY [CompanyID], [EmployeeID], [TimeCard], [HEDNumber]";
             command = new SqlCommand(Query, sqlconnection);
             SqlDataReader reader = command.ExecuteReader();
-            
+            Application.DoEvents();
+
             DataTable outputTable = new DataTable();
             outputTable.Load(reader);
             string CurrentCompany = "";
@@ -151,17 +155,22 @@ namespace PayflexTimeCardConverter
 
             foreach (DataRow record in outputTable.Rows)
             {
+                Application.DoEvents();
+
                 var Company = record[0].ToString();
                 if (CurrentCompany != Company)
                 {
                     sw.Flush();
                     sw.Close();
+                    Application.DoEvents();
 
                     String FileName = txt_Output.Text + "\\" + Company + "_TA_XTRNL.DAT";
                     newFile = !File.Exists(FileName); 
                     sw = File.AppendText(FileName);
                     if (newFile) sw.WriteLine("P" + CurrentDate + record[1].ToString());
-               
+
+                    Application.DoEvents();
+
                 }
                 sw.WriteLine(record[2].ToString());
                 pb_Status.PerformStep();
@@ -172,9 +181,13 @@ namespace PayflexTimeCardConverter
             
             sw.Flush();
             sw.Close();
+            Application.DoEvents();
 
             File.Delete(txt_Output.Text + "\\TEST.DAT");
             lbl_Status.Text = "Export Complete";
+            
+            Application.DoEvents();
+
         }
 
         private void AddUpdateAppSettings(string key, string value)
